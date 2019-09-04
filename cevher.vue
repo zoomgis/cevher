@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div style="position:relative;" v-if="displayCevher">
+    <div style="position:relative;" v-if="config.displayCevher">
       <!-- map component -->
       <vl-map
         :load-tiles-while-animating="true"
@@ -12,23 +12,28 @@
         <vl-view
           ref="view"
           name="view"
-          :zoom.sync="zoom"
+          :zoom.sync="config.zoom"
           :min-zoom="2"
           :max-zoom="20"
-          :center.sync="center"
+          :center.sync="config.center"
           :rotation.sync="rotation"
         ></vl-view>
         <!--// view component -->
 
-        <!-- base layer -->
-        <vl-layer-tile id="bingmaps">
-          <vl-source-bingmaps :api-key="apiKey" :imagery-set="baseMapStyle"></vl-source-bingmaps>
+        <!-- base layers component -->
+        <vl-layer-tile
+          v-for="layer in config.baseLayers"
+          :key="layer.name"
+          :id="layer.name"
+          :visible="layer.visible"
+        >
+          <component :is="'vl-source-' + layer.name" v-bind="layer" :imagery-set="layer.imagerySet"></component>
         </vl-layer-tile>
-        <!--// base layer -->
+        <!--// base layers component -->
 
         <!-- layers component -->
         <component
-          v-for="layer in layers"
+          v-for="layer in config.layers"
           :is="layer.cmp"
           v-if="layer.visible"
           :key="layer.id"
@@ -60,7 +65,7 @@
           </div>
 
           <div style="max-height:200px;overflow:auto;">
-            <div style="font-size:13px;margin:5px;" v-for="layer in layers" :key="layer.id">
+            <div style="font-size:13px;margin:5px;" v-for="layer in config.layers" :key="layer.id">
               <b-switch :key="layer.id" v-model="layer.visible">{{ layer.title }}</b-switch>
             </div>
           </div>
@@ -88,33 +93,7 @@ export default {
     VueLayers
   },
   props: {
-    displayCevher: {
-      type: Boolean,
-      required: true
-    },
-    apiKey: {
-      type: String,
-      required: false,
-      default: "cevher"
-    },
-    zoom: {
-      type: Number,
-      required: false,
-      default: 10
-    },
-    center: {
-      type: Array,
-      required: false,
-      default: () => [28.8724219692539, 41.04775534936306]
-    },
-    baseMapStyle: {
-      type: String,
-      required: false,
-      default: "Road"
-    },
-    layers: {
-      type: Object
-    }
+    config: Object
   },
   data() {
     return {
