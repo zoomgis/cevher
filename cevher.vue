@@ -20,6 +20,29 @@
         ></vl-view>
         <!--// view component -->
 
+        <!-- interactions -->
+        <vl-interaction-select :features.sync="selectedFeatures">
+          <template slot-scope="select">
+            <!-- select styles -->
+            <vl-style-box>
+              <vl-style-stroke color="#423e9e" :width="7"></vl-style-stroke>
+              <vl-style-fill :color="[254, 178, 76, 0.7]"></vl-style-fill>
+              <vl-style-circle :radius="5">
+                <vl-style-stroke color="#423e9e" :width="7"></vl-style-stroke>
+                <vl-style-fill :color="[254, 178, 76, 0.7]"></vl-style-fill>
+              </vl-style-circle>
+            </vl-style-box>
+            <vl-style-box :z-index="1">
+              <vl-style-stroke color="#d43f45" :width="2"></vl-style-stroke>
+              <vl-style-circle :radius="5">
+                <vl-style-stroke color="#d43f45" :width="2"></vl-style-stroke>
+              </vl-style-circle>
+            </vl-style-box>
+            <!--// select styles -->
+          </template>
+        </vl-interaction-select>
+        <!--// interactions -->
+
         <!-- base layers component -->
         <vl-layer-tile
           v-for="layer in config.baseLayers"
@@ -72,6 +95,25 @@
         </b-collapse>
       </div>
       <!--// layers panel -->
+
+      <!-- select feature panel -->
+      <div v-if="selectedPopup">
+        <div
+          style="position:absolute;bottom:0px;left:0px;width:200px;background-color:#f5f5f5;color:black;margin:5px;max-width:200px;max-height:200px;overflow:auto;"
+        >
+          <table border="1" style="width:100%">
+            <tr>
+              <th style="padding:5px;">Key</th>
+              <th style="padding:5px;">Value</th>
+            </tr>
+            <tr v-for="item in selectedList" :key="item">
+              <td style="padding:5px;">{{item[0]}}</td>
+              <td style="padding:5px;">{{item[1]}}</td>
+            </tr>
+          </table>&nbsp;
+        </div>
+      </div>
+      <!--// select feature panel -->
     </div>
   </div>
 </template>
@@ -97,8 +139,25 @@ export default {
   },
   data() {
     return {
-      rotation: 0
+      rotation: 0,
+      selectedFeatures: [],
+      selectedPopup: false,
+      selectedList: []
     };
+  },
+  watch: {
+    selectedFeatures: function(value) {
+      let selectObject = JSON.parse(JSON.stringify(value));
+
+      if (selectObject.length > 0) {
+        let list = Object.entries(selectObject[0].properties);
+        this.selectedList = list;
+
+        this.selectedPopup = true;
+      } else {
+        this.selectedPopup = false;
+      }
+    }
   }
 };
 </script>
